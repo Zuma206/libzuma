@@ -6,5 +6,6 @@ int main() {
   *count = 0;
   (*count)++;
   printf("count (expected 1) = %d\n", *count);
+  deallocate(heap, count);
   panic("This is a planned panic! Program should now exit with status 1\n");
 }
