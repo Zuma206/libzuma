@@ -12,9 +12,9 @@ void zu_panic(char *fmt, ...);
  * VTable of procedures required to implement the `zu_allocator` interface.
  */
 typedef struct {
-  void *(*reallocate)(void *data, void *ptr, size_t size);
-  void *(*allocate)(void *data, size_t size);
-  void (*deallocate)(void *data, void *ptr);
+  void *(*reallocate_impl)(void *data, void *ptr, size_t size);
+  void *(*allocate_impl)(void *data, size_t size);
+  void (*deallocate_impl)(void *data, void *ptr);
 } zu_allocator_vtable;
 
 /**
@@ -38,7 +38,7 @@ typedef struct {
  * Internal procedure.
  */
 static inline void *__zu_allocate(zu_allocator allocator, size_t size) {
-  return allocator.vtable->allocate(allocator.data, size);
+  return allocator.vtable->allocate_impl(allocator.data, size);
 }
 
 /**
@@ -54,15 +54,21 @@ static inline void *__zu_allocate(zu_allocator allocator, size_t size) {
  */
 static inline void *__zu_reallocate(zu_allocator allocator, void *ptr,
                                     size_t size) {
-  return allocator.vtable->reallocate(allocator.data, ptr, size);
+  return allocator.vtable->reallocate_impl(allocator.data, ptr, size);
 }
 
 /**
  * De-allocates pointer `ptr` using `allocator`.
  */
 static inline void zu_deallocate(zu_allocator allocator, void *ptr) {
-  allocator.vtable->deallocate(allocator.data, ptr);
+  allocator.vtable->deallocate_impl(allocator.data, ptr);
 }
+
+/**
+ * Implementation of `zu_allocator` that directly calls `malloc`, `realloc`, and
+ * `free`. Panics if `malloc` or `realloc` return `nullptr`.
+ */
+extern zu_allocator zu_heap;
 
 #ifndef zu_force_prefix
 
@@ -72,6 +78,7 @@ typedef zu_allocator allocator;
 #define allocate zu_allocate
 #define reallocate zu_reallocate
 #define deallocate zu_deallocate
+#define heap zu_heap
 
 #endif
 
