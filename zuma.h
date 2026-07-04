@@ -20,14 +20,14 @@ typedef struct {
 } zu_allocator;
 
 #define zu_allocate(allocator, T, ...)                                         \
-  __zu_allocate((allocator), sizeof(T) __VA_ARGS__)
+  ((T *)__zu_allocate((allocator), sizeof(T) __VA_ARGS__))
 
 static inline void *__zu_allocate(zu_allocator allocator, size_t size) {
   return allocator.vtable->allocate(allocator.data, size);
 }
 
 #define zu_reallocate(allocator, ptr, T, ...)                                  \
-  __zu_allocate((allocator), (ptr), sizeof(T) __VA_ARGS__)
+  ((T *)__zu_allocate((allocator), (ptr), sizeof(T) __VA_ARGS__))
 
 static inline void *__zu_reallocate(zu_allocator allocator, void *ptr,
                                     size_t size) {
