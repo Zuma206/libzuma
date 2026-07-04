@@ -8,32 +8,58 @@
  */
 void zu_panic(char *fmt, ...);
 
+/**
+ * VTable of procedures required to implement the `zu_allocator` interface.
+ */
 typedef struct {
   void *(*reallocate)(void *data, void *ptr, size_t size);
   void *(*allocate)(void *data, size_t size);
   void (*deallocate)(void *data, void *ptr);
 } zu_allocator_vtable;
 
+/**
+ * Allocator interface. Requires procedures `allocate`, `reallocate`, and
+ * `deallocate`.
+ */
 typedef struct {
   zu_allocator_vtable *vtable;
   void *data;
 } zu_allocator;
 
+/**
+ * Allocates memory for `T` using `allocator`. Optionally takes in a modifier to
+ * the size of `T`, for example `*3` to allocate an array of 3 `T` items, or
+ * `+sizeof(U)` to allocate `U` after `T`.
+ */
 #define zu_allocate(allocator, T, ...)                                         \
   ((T *)__zu_allocate((allocator), sizeof(T) __VA_ARGS__))
 
+/**
+ * Internal procedure.
+ */
 static inline void *__zu_allocate(zu_allocator allocator, size_t size) {
   return allocator.vtable->allocate(allocator.data, size);
 }
 
+/**
+ * Re-allocates pointer `ptr`, using `allocator`, to a new memory address, with
+ * the size of `T`. Also takes the same optional parameter as `zu_allocate`. See
+ * `zu_allocate` for more information.
+ */
 #define zu_reallocate(allocator, ptr, T, ...)                                  \
   ((T *)__zu_allocate((allocator), (ptr), sizeof(T) __VA_ARGS__))
 
+/**
+ * Internal procedure.
+ */
 static inline void *__zu_reallocate(zu_allocator allocator, void *ptr,
                                     size_t size) {
   return allocator.vtable->reallocate(allocator.data, ptr, size);
 }
 
+/**
+ * De-allocates pointer `ptr` using `allocator`.
+ */
 static inline void zu_deallocate(zu_allocator allocator, void *ptr) {
   allocator.vtable->deallocate(allocator.data, ptr);
 }
