@@ -31,13 +31,13 @@ static void *heap_reallocate(void *, void *prev, size_t size) {
 
 static void heap_deallocate(void *, void *ptr) { free(ptr); }
 
-static allocator_vtable heap_vtable = {
+static allocator_vtable_t heap_vtable = {
     .deallocate_impl = heap_deallocate,
     .reallocate_impl = heap_reallocate,
     .allocate_impl = heap_allocate,
 };
 
-allocator zu_heap = {
+allocator_t zu_heap = {
     .vtable = &heap_vtable,
     .data = nullptr,
 };
