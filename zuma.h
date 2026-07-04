@@ -47,7 +47,7 @@ static inline void *__zu_allocate(zu_allocator_t allocator, size_t size) {
  * `zu_allocate` for more information.
  */
 #define zu_reallocate(allocator, ptr, T, ...)                                  \
-  ((T *)__zu_allocate((allocator), (ptr), sizeof(T) __VA_ARGS__))
+  ((T *)__zu_reallocate((allocator), (ptr), sizeof(T) __VA_ARGS__))
 
 /**
  * Internal procedure.
