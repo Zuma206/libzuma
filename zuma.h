@@ -124,6 +124,16 @@ typedef struct {
  */
 zu_arena_t *zu_new_arena_page_size(zu_allocator_t allocator, size_t page_size);
 
+/**
+ * Internal procedure.
+ */
+void zu_destroy_arena(zu_arena_t *arena);
+
+/**
+ * De-allocates zu struct `o`.
+ */
+#define zu_destroy(o) _Generic((o), zu_arena_t *: zu_destroy_arena)((o))
+
 #ifndef zu_force_prefix
 
 #define panic zu_panic
@@ -140,6 +150,7 @@ typedef zu_allocator_t allocator_t;
 #define gib zu_gib
 typedef zu_arena_t arena_t;
 #define new_arena zu_new_arena
+#define destroy zu_destroy
 
 #endif
 

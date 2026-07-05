@@ -83,3 +83,12 @@ zu_arena_t *zu_new_arena_page_size(zu_allocator_t allocator, size_t page_size) {
   };
   return arena;
 }
+
+void zu_destroy_arena(arena_t *arena) {
+  while (arena->page != nullptr) {
+    zu_page_t *page = arena->page;
+    arena->page = page->prev;
+    deallocate(arena->page_allocator, page);
+  }
+  deallocate(arena->page_allocator, arena);
+}
