@@ -32,28 +32,29 @@ typedef struct {
  * `+sizeof(U)` to allocate `U` after `T`.
  */
 #define zu_allocate(allocator, T, ...)                                         \
-  ((T *)__zu_allocate((allocator), sizeof(T) __VA_ARGS__))
+  ((T *)zu_allocate_buffer((allocator), sizeof(T) __VA_ARGS__))
 
 /**
- * Internal procedure.
+ * Allocates memory of size `size` using `allocator`.
  */
-static inline void *__zu_allocate(zu_allocator_t allocator, size_t size) {
+static inline void *zu_allocate_buffer(zu_allocator_t allocator, size_t size) {
   return allocator.vtable->allocate_impl(allocator.data, size);
 }
 
 /**
  * Re-allocates pointer `ptr`, using `allocator`, to a new memory address, with
- * the size of `T`. Also takes the same optional parameter as `zu_allocate`. See
+ * the size of `T`. also takes the same optional parameter as `zu_allocate`. see
  * `zu_allocate` for more information.
  */
 #define zu_reallocate(allocator, ptr, T, ...)                                  \
-  ((T *)__zu_reallocate((allocator), (ptr), sizeof(T) __VA_ARGS__))
+  ((T *)zu_reallocate_buffer((allocator), (ptr), sizeof(T) __VA_ARGS__))
 
 /**
- * Internal procedure.
+ * Re-allocates pointer `ptr`, using `allocator`, to a new memory address, with
+ * the size `size`.
  */
-static inline void *__zu_reallocate(zu_allocator_t allocator, void *ptr,
-                                    size_t size) {
+static inline void *zu_reallocate_buffer(zu_allocator_t allocator, void *ptr,
+                                         size_t size) {
   return allocator.vtable->reallocate_impl(allocator.data, ptr, size);
 }
 
@@ -76,7 +77,9 @@ extern zu_allocator_t zu_heap;
 typedef zu_allocator_vtable_t allocator_vtable_t;
 typedef zu_allocator_t allocator_t;
 #define allocate zu_allocate
+#define allocate_buffer zu_allocate_buffer
 #define reallocate zu_reallocate
+#define reallocate_buffer zu_reallocate_buffer
 #define deallocate zu_deallocate
 #define heap zu_heap
 
