@@ -86,16 +86,31 @@ extern zu_allocator_t zu_heap;
  */
 #define zu_gib(n) (zu_mib((n)) * 1024)
 
+/**
+ * Allocate a new arena allocator with the parent allocator `allocator`.
+ * Optionally takes the page size that the arena allocator should work with.
+ */
 #define zu_new_arena(allocator, ...)                                           \
   zu_new_arena_##__VA_OPT__(page_size)((allocator)__VA_OPT__(, (__VA_ARGS__)))
 
+/**
+ * Internal procedure
+ */
 #define zu_new_arena_(allocator) zu_new_arena_page_size((allocator), zu_kib(4))
 
+/**
+ * A page allocated by an arena allocator
+ */
 typedef struct zu_page {
   struct zu_page *prev;
   char buffer[];
 } zu_page_t;
 
+/**
+ * An arena allocator. Works by allocating a page of `page_size`, and bump
+ * allocating from it. When the page runs out of space, or more data is
+ * requested than is free in the current page, a new page is allocated.
+ */
 typedef struct {
   zu_allocator_t page_allocator;
   zu_allocator_t allocator;
@@ -104,6 +119,9 @@ typedef struct {
   size_t used;
 } zu_arena_t;
 
+/**
+ * Internal procedure.
+ */
 zu_arena_t *zu_new_arena_page_size(zu_allocator_t allocator, size_t page_size);
 
 #ifndef zu_force_prefix
