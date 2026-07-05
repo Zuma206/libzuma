@@ -71,6 +71,23 @@ static inline void zu_deallocate(zu_allocator_t allocator, void *ptr) {
  */
 extern zu_allocator_t zu_heap;
 
+typedef struct zu_page zu_page_t;
+
+/**
+ * `n` kibibytes in bytes
+ */
+#define zu_kib(n) ((n) * 1024)
+
+/**
+ * `n` mebibytes in bytes
+ */
+#define zu_mib(n) (zu_kib((n)) * 1024)
+
+/**
+ * `n` gibibytes in bytes
+ */
+#define zu_gib(n) (zu_mib((n)) * 1024)
+
 #ifndef zu_force_prefix
 
 #define panic zu_panic
@@ -82,6 +99,9 @@ typedef zu_allocator_t allocator_t;
 #define reallocate_buffer zu_reallocate_buffer
 #define deallocate zu_deallocate
 #define heap zu_heap
+#define kib zu_kib
+#define mib zu_mib
+#define gib zu_gib
 
 #endif
 
