@@ -71,8 +71,6 @@ static inline void zu_deallocate(zu_allocator_t allocator, void *ptr) {
  */
 extern zu_allocator_t zu_heap;
 
-typedef struct zu_page zu_page_t;
-
 /**
  * `n` kibibytes in bytes
  */
@@ -88,6 +86,26 @@ typedef struct zu_page zu_page_t;
  */
 #define zu_gib(n) (zu_mib((n)) * 1024)
 
+#define zu_new_arena(allocator, ...)                                           \
+  zu_new_arena_##__VA_OPT__(page_size)((allocator)__VA_OPT__(, (__VA_ARGS__)))
+
+#define zu_new_arena_(allocator) zu_new_arena_page_size((allocator), zu_kib(4))
+
+typedef struct zu_page {
+  struct zu_page *prev;
+  char buffer[];
+} zu_page_t;
+
+typedef struct {
+  zu_allocator_t page_allocator;
+  zu_allocator_t allocator;
+  zu_page_t *page;
+  size_t page_size;
+  size_t used;
+} zu_arena_t;
+
+zu_arena_t *zu_new_arena_page_size(zu_allocator_t allocator, size_t page_size);
+
 #ifndef zu_force_prefix
 
 #define panic zu_panic
@@ -102,6 +120,8 @@ typedef zu_allocator_t allocator_t;
 #define kib zu_kib
 #define mib zu_mib
 #define gib zu_gib
+typedef zu_arena_t arena_t;
+#define new_arena zu_new_arena
 
 #endif
 
