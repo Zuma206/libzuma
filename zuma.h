@@ -74,17 +74,17 @@ extern zu_allocator_t zu_heap;
 /**
  * `n` kibibytes in bytes
  */
-#define zu_kib(n) ((n) * 1024)
+static inline size_t zu_kib(size_t n) { return n * 1024; }
 
 /**
  * `n` mebibytes in bytes
  */
-#define zu_mib(n) (zu_kib((n)) * 1024)
+static inline size_t zu_mib(size_t n) { return zu_kib(n) * 1024; }
 
 /**
  * `n` gibibytes in bytes
  */
-#define zu_gib(n) (zu_mib((n)) * 1024)
+static inline size_t zu_gib(size_t n) { return zu_mib(n) * 1024; }
 
 /**
  * Allocate a new arena allocator with the parent allocator `allocator`.
