@@ -135,3 +135,72 @@ allocator_t zu_to_allocator_block(block_t *block) {
       .data = block,
   };
 }
+
+static void *tracker_allocate(void *data, size_t size) {
+  zu_tracker_t *tracker = data;
+  zu_tracker_allocation_t *allocation =
+      allocate(tracker->backing_allocator, zu_tracker_allocation_t, +size);
+  allocation->prev = tracker->prev;
+  allocation->next = nullptr;
+  tracker->prev = allocation;
+  return allocation->buffer;
+}
+
+static inline zu_tracker_allocation_t *get_tracker_allocation(void *ptr) {
+  return ptr - offsetof(zu_tracker_allocation_t, buffer);
+}
+
+static void *tracker_reallocate(void *data, void *ptr, size_t size) {
+  zu_tracker_t *tracker = data;
+  zu_tracker_allocation_t *allocation = get_tracker_allocation(ptr);
+  allocation = reallocate(tracker->backing_allocator, allocation,
+                          zu_tracker_allocation_t, +size);
+  if (allocation->prev != nullptr)
+    allocation->prev->next = allocation;
+  if (allocation->next != nullptr)
+    allocation->next->prev = allocation;
+  else
+    tracker->prev = allocation;
+  return allocation->buffer;
+}
+
+static void tracker_deallocate(void *data, void *ptr) {
+  zu_tracker_t *tracker = data;
+  zu_tracker_allocation_t *allocation = get_tracker_allocation(ptr);
+  if (allocation->prev != nullptr)
+    allocation->prev->next = allocation->next;
+  if (allocation->next != nullptr)
+    allocation->next->prev = allocation->prev;
+  else
+    tracker->prev = allocation->prev;
+  deallocate(tracker->backing_allocator, allocation);
+}
+
+static zu_allocator_vtable_t tacker_vtable = {
+    .deallocate_impl = tracker_deallocate,
+    .reallocate_impl = tracker_reallocate,
+    .allocate_impl = tracker_allocate,
+};
+
+zu_tracker_t *zu_new_tracker(zu_allocator_t backing_allocator) {
+  zu_tracker_t *tracker = allocate(backing_allocator, zu_tracker_t);
+  tracker->backing_allocator = backing_allocator;
+  tracker->prev = nullptr;
+  return tracker;
+}
+
+allocator_t zu_to_allocator_tracker(zu_tracker_t *tracker) {
+  return (allocator_t){
+      .vtable = &tacker_vtable,
+      .data = tracker,
+  };
+}
+
+void zu_destroy_tracker(zu_tracker_t *tracker) {
+  while (tracker->prev != nullptr) {
+    zu_tracker_allocation_t *allocation = tracker->prev;
+    tracker->prev = allocation->prev;
+    deallocate(tracker->backing_allocator, allocation);
+  }
+  deallocate(tracker->backing_allocator, tracker);
+}

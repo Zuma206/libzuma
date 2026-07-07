@@ -21,9 +21,16 @@ int main() {
   char backing[256];
   block_t block = make_block(backing, sizeof(backing));
   allocator = to_allocator(&block);
-  char *str = allocate(allocator, char, *500);
+  char *str = allocate(allocator, char, *50);
   strcpy(str, "hiii");
   printf("hiii = %s\n", str);
+
+  tracker_t *tracker = new_tracker(heap);
+  allocator = to_allocator(tracker);
+  char *str_1 = allocate(allocator, char, *250);
+  strcpy(str_1, "test");
+  printf("test = %s\n", str_1);
+  destroy(tracker);
 
   panic("This is a planned panic! Program should now exit with status 1\n");
 }

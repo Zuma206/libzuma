@@ -132,7 +132,10 @@ void zu_destroy_arena(zu_arena_t *arena);
 /**
  * De-allocates zu struct `o`.
  */
-#define zu_destroy(o) _Generic((o), zu_arena_t *: zu_destroy_arena)((o))
+#define zu_destroy(o)                                                          \
+  _Generic((o),                                                                \
+      zu_arena_t *: zu_destroy_arena,                                          \
+      zu_tracker_t *: zu_destroy_tracker)((o))
 
 typedef struct {
   void *buffer;
@@ -161,7 +164,25 @@ zu_allocator_t zu_to_allocator_block(zu_block_t *block);
 #define zu_to_allocator(o)                                                     \
   _Generic((o),                                                                \
       zu_arena_t *: zu_to_allocator_arena,                                     \
-      zu_block_t *: zu_to_allocator_block)((o))
+      zu_block_t *: zu_to_allocator_block,                                     \
+      zu_tracker_t *: zu_to_allocator_tracker)((o))
+
+typedef struct zu_tracker_allocation {
+  struct zu_tracker_allocation *next;
+  struct zu_tracker_allocation *prev;
+  char buffer[];
+} zu_tracker_allocation_t;
+
+typedef struct {
+  zu_allocator_t backing_allocator;
+  zu_tracker_allocation_t *prev;
+} zu_tracker_t;
+
+zu_tracker_t *zu_new_tracker(zu_allocator_t backing_allocator);
+
+zu_allocator_t zu_to_allocator_tracker(zu_tracker_t *tracker);
+
+void zu_destroy_tracker(zu_tracker_t *tracker);
 
 #ifndef zu_force_prefix
 
@@ -183,6 +204,8 @@ typedef zu_arena_t arena_t;
 typedef zu_block_t block_t;
 #define to_allocator zu_to_allocator
 #define make_block zu_make_block
+typedef zu_tracker_t tracker_t;
+#define new_tracker zu_new_tracker
 
 #endif
 
