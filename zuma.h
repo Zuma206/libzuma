@@ -134,6 +134,35 @@ void zu_destroy_arena(zu_arena_t *arena);
  */
 #define zu_destroy(o) _Generic((o), zu_arena_t *: zu_destroy_arena)((o))
 
+typedef struct {
+  void *buffer;
+  size_t size;
+  size_t used;
+} zu_block_t;
+
+/**
+ * Construct a fixed-block backed allocator.
+ */
+zu_block_t zu_make_block(void *buffer, size_t size);
+
+/**
+ * Internal procedure.
+ */
+zu_allocator_t zu_to_allocator_arena(zu_arena_t *arena);
+
+/**
+ * Internal procedure.
+ */
+zu_allocator_t zu_to_allocator_block(zu_block_t *block);
+
+/**
+ * Create a `zu_allocator_t` interface from any standard library allocator.
+ */
+#define zu_to_allocator(o)                                                     \
+  _Generic((o),                                                                \
+      zu_arena_t *: zu_to_allocator_arena,                                     \
+      zu_block_t *: zu_to_allocator_block)((o))
+
 #ifndef zu_force_prefix
 
 #define panic zu_panic
@@ -151,6 +180,9 @@ typedef zu_allocator_t allocator_t;
 typedef zu_arena_t arena_t;
 #define new_arena zu_new_arena
 #define destroy zu_destroy
+typedef zu_block_t block_t;
+#define to_allocator zu_to_allocator
+#define make_block zu_make_block
 
 #endif
 

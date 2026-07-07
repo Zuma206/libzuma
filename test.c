@@ -18,5 +18,12 @@ int main() {
   printf("22 = %d, Hello, World! = %s\n", *count_1, buffer);
   destroy(arena);
 
+  char backing[256];
+  block_t block = make_block(backing, sizeof(backing));
+  allocator = to_allocator(&block);
+  char *str = allocate(allocator, char, *500);
+  strcpy(str, "hiii");
+  printf("hiii = %s\n", str);
+
   panic("This is a planned panic! Program should now exit with status 1\n");
 }

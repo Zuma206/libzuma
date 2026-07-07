@@ -92,3 +92,46 @@ void zu_destroy_arena(arena_t *arena) {
   }
   deallocate(arena->page_allocator, arena);
 }
+
+static void *block_allocate(void *data, size_t size) {
+  block_t *block = data;
+  if (block->size - block->used < size)
+    panic("fatal allocation error: block allocator out of space\n");
+  void *ptr = block->buffer + block->used;
+  block->used += size;
+  return ptr;
+}
+
+static void block_deallocate(void *, void *) {}
+
+static void *block_reallocate(void *data, void *, size_t size) {
+  return block_allocate(data, size);
+}
+
+static allocator_vtable_t block_vtable = {
+    .reallocate_impl = block_reallocate,
+    .deallocate_impl = block_deallocate,
+    .allocate_impl = block_allocate,
+};
+
+block_t zu_make_block(void *buffer, size_t size) {
+  return (block_t){
+      .buffer = buffer,
+      .size = size,
+      .used = 0,
+  };
+}
+
+allocator_t zu_to_allocator_arena(arena_t *arena) {
+  return (allocator_t){
+      .vtable = &arena_vtable,
+      .data = arena,
+  };
+}
+
+allocator_t zu_to_allocator_block(block_t *block) {
+  return (allocator_t){
+      .vtable = &block_vtable,
+      .data = block,
+  };
+}
