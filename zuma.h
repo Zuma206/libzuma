@@ -167,21 +167,39 @@ zu_allocator_t zu_to_allocator_block(zu_block_t *block);
       zu_block_t *: zu_to_allocator_block,                                     \
       zu_tracker_t *: zu_to_allocator_tracker)((o))
 
+/**
+ * Internal allocation inside a tracker allocator.
+ */
 typedef struct zu_tracker_allocation {
   struct zu_tracker_allocation *next;
   struct zu_tracker_allocation *prev;
   char buffer[];
 } zu_tracker_allocation_t;
 
+/**
+ * A tracking allocator. Allocates directly onto it's backing allocator, but
+ * prefixes all allocations with linked-list metadata to store a list of all
+ * allocations. These allocations are therefore all deallocated when the tracker
+ * is destroyed. Supports both true reallocation and early deallocation.
+ */
 typedef struct {
   zu_allocator_t backing_allocator;
   zu_tracker_allocation_t *prev;
 } zu_tracker_t;
 
+/**
+ * Allocate and construct a new tracker allocator on `backing_allocator`.
+ */
 zu_tracker_t *zu_new_tracker(zu_allocator_t backing_allocator);
 
+/**
+ * Internal procedure.
+ */
 zu_allocator_t zu_to_allocator_tracker(zu_tracker_t *tracker);
 
+/**
+ * Destroys a tracker allocator, and deallocates all tracked allocations.
+ */
 void zu_destroy_tracker(zu_tracker_t *tracker);
 
 #ifndef zu_force_prefix
