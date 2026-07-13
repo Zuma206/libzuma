@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void zu_panic(char *fmt, ...) {
   va_list args;
@@ -241,4 +242,13 @@ void zu_pre_append(void **buffer, vec_t *vec) {
   if (vec_full(vec))
     *buffer = vec_grow(vec);
   vec->length++;
+}
+
+zu_string_t zu_substring_start_length(string_t string, size_t start,
+                                      size_t length) {
+  return (string_t){.characters = string.characters + start, .length = length};
+}
+
+zu_string_t zu_to_string(char *cstr) {
+  return (string_t){.characters = cstr, .length = strlen(cstr)};
 }

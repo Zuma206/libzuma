@@ -54,5 +54,19 @@ int main() {
     destroy(tracker);
   }
 
+  { // String tests
+    string_t greeting = string("Hello, World!");
+    printf("%.*s = ", fmt(greeting));
+    for (size_t i = 0; i < len(greeting); i++)
+      printf("%c", greeting.characters[i]);
+    putchar('\n');
+    string_t name = substring(greeting, 7);
+    printf("World! = %.*s\n", fmt(name));
+    string_t short_name = substring(greeting, 7, len(name) - 1);
+    printf("World = %.*s\n", fmt(short_name));
+    string_t final = to_string("goodbye world!");
+    printf("goodbye world! = %.*s\n", fmt(final));
+  }
+
   panic("This is a planned panic! Program should now exit with status 1\n");
 }

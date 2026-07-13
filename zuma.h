@@ -231,7 +231,8 @@ void *zu_new_vec_items(zu_allocator_t allocator, size_t item_size,
 /**
  * Takes the length of an object.
  */
-#define zu_len(o) _Generic((o), zu_vec_t: zu_len_vec)((o))
+#define zu_len(o)                                                              \
+  _Generic((o), zu_vec_t: zu_len_vec, zu_string_t: zu_len_string)((o))
 
 /**
  * Internal procedure.
@@ -245,6 +246,31 @@ static inline void zu_void() {}
 #define zu_append(vector, buffer, value)                                       \
   (zu_pre_append((void **)(buffer), (vector)),                                 \
    ((*(buffer))[zu_len(*vector) - 1] = (value)), zu_void())
+
+typedef struct {
+  char *characters;
+  size_t length;
+} zu_string_t;
+
+#define zu_string(literal)                                                     \
+  (zu_string_t){.characters = (literal), .length = sizeof(literal) - 1}
+
+#define zu_fmt(str) (int)str.length, str.characters
+
+static inline size_t zu_len_string(zu_string_t string) { return string.length; }
+
+zu_string_t zu_substring_start_length(zu_string_t string, size_t start,
+                                      size_t length);
+
+static inline zu_string_t zu_substring_start(zu_string_t string, size_t start) {
+  return zu_substring_start_length(string, start, zu_len(string) - start);
+}
+
+#define zu_substring(string, start, ...)                                       \
+  zu_substring_start##__VA_OPT__(_length)((string),                            \
+                                          (start)__VA_OPT__(, (__VA_ARGS__)))
+
+zu_string_t zu_to_string(char *cstr);
 
 #ifndef zu_force_prefix
 
@@ -272,6 +298,11 @@ typedef zu_tracker_t tracker_t;
 #define len zu_len
 typedef zu_vec_t vec_t;
 #define append zu_append
+#define string zu_string
+typedef zu_string_t string_t;
+#define substring zu_substring
+#define fmt zu_fmt
+#define to_string zu_to_string
 
 #endif
 
