@@ -238,6 +238,14 @@ void *zu_new_vec_items(zu_allocator_t allocator, size_t item_size,
  */
 static inline size_t zu_len_vec(zu_vec_t vec) { return vec.length; }
 
+void zu_pre_append(void **buffer, zu_vec_t *vec);
+
+static inline void zu_void() {}
+
+#define zu_append(vector, buffer, value)                                       \
+  (zu_pre_append((void **)(buffer), (vector)),                                 \
+   ((*(buffer))[zu_len(*vector) - 1] = (value)), zu_void())
+
 #ifndef zu_force_prefix
 
 #define panic zu_panic
@@ -263,6 +271,7 @@ typedef zu_tracker_t tracker_t;
 #define new_vec zu_new_vec
 #define len zu_len
 typedef zu_vec_t vec_t;
+#define append zu_append
 
 #endif
 

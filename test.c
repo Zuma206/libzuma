@@ -46,8 +46,11 @@ int main() {
     vec_t numbers_vec;
     int *numbers =
         new_vec(allocator, int, &numbers_vec, 0, 1, 2, 3, 4, 5, 6, 7);
+    append(&numbers_vec, &numbers, 8);
+    append(&numbers_vec, &numbers, 9);
+    append(&numbers_vec, &numbers, 10);
     for (size_t i = 0; i < len(numbers_vec); i++)
-      printf("%ld: %d\n", i, numbers[i]);
+      printf("%ld = %d\n", i, numbers[i]);
     destroy(tracker);
   }
 

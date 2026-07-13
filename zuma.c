@@ -219,3 +219,26 @@ void *zu_new_vec_items(zu_allocator_t allocator, size_t item_size, vec_t *vec,
   vec->allocator = allocator;
   return memcpy(vec->buffer, items, items_size);
 }
+
+static inline size_t vec_next_capacity(size_t capacity, size_t desired_length) {
+  size_t next_capacity = capacity > 0 ? capacity : 1;
+  while (next_capacity < desired_length)
+    next_capacity *= 2;
+  return next_capacity;
+}
+
+static inline bool vec_full(vec_t *vec) { return vec->length >= vec->capacity; }
+
+static inline void *vec_grow(vec_t *vec) {
+  vec->capacity = vec_next_capacity(vec->capacity, vec->length + 1);
+  return vec->buffer = reallocate_buffer(vec->allocator, vec->buffer,
+                                         vec->capacity * vec->item_size);
+}
+
+void zu_pre_append(void **buffer, vec_t *vec) {
+  if (*buffer != vec->buffer)
+    panic("vector paired with incorrect buffer");
+  if (vec_full(vec))
+    *buffer = vec_grow(vec);
+  vec->length++;
+}
