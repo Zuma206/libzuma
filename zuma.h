@@ -202,6 +202,9 @@ zu_allocator_t zu_to_allocator_tracker(zu_tracker_t *tracker);
  */
 void zu_destroy_tracker(zu_tracker_t *tracker);
 
+/**
+ * Metadata information for a vector
+ */
 typedef struct {
   zu_allocator_t allocator;
   size_t item_size;
@@ -210,16 +213,29 @@ typedef struct {
   void *buffer;
 } zu_vec_t;
 
+/**
+ * Allocates a new vector of type `T` using `allocator`. Optionally takes in
+ * values to store in the vector by default.
+ */
 #define zu_new_vec(allocator, T, vec, ...)                                     \
   ((T *)zu_new_vec_items((allocator), sizeof(T), (vec),                        \
                          sizeof((T[]){__VA_ARGS__}) / sizeof(T),               \
                          (T[]){__VA_ARGS__}))
 
+/**
+ * Internal procedure.
+ */
 void *zu_new_vec_items(zu_allocator_t allocator, size_t item_size,
                        zu_vec_t *vec, size_t items_length, void *items);
 
+/**
+ * Takes the length of an object.
+ */
 #define zu_len(o) _Generic((o), zu_vec_t: zu_len_vec)((o))
 
+/**
+ * Internal procedure.
+ */
 static inline size_t zu_len_vec(zu_vec_t vec) { return vec.length; }
 
 #ifndef zu_force_prefix
