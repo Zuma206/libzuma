@@ -202,6 +202,26 @@ zu_allocator_t zu_to_allocator_tracker(zu_tracker_t *tracker);
  */
 void zu_destroy_tracker(zu_tracker_t *tracker);
 
+typedef struct {
+  zu_allocator_t allocator;
+  size_t item_size;
+  size_t capacity;
+  size_t length;
+  void *buffer;
+} zu_vec_t;
+
+#define zu_new_vec(allocator, T, vec, ...)                                     \
+  ((T *)zu_new_vec_items((allocator), sizeof(T), (vec),                        \
+                         sizeof((T[]){__VA_ARGS__}) / sizeof(T),               \
+                         (T[]){__VA_ARGS__}))
+
+void *zu_new_vec_items(zu_allocator_t allocator, size_t item_size,
+                       zu_vec_t *vec, size_t items_length, void *items);
+
+#define zu_len(o) _Generic((o), zu_vec_t: zu_len_vec)((o))
+
+static inline size_t zu_len_vec(zu_vec_t vec) { return vec.length; }
+
 #ifndef zu_force_prefix
 
 #define panic zu_panic
@@ -224,6 +244,9 @@ typedef zu_block_t block_t;
 #define make_block zu_make_block
 typedef zu_tracker_t tracker_t;
 #define new_tracker zu_new_tracker
+#define new_vec zu_new_vec
+#define len zu_len
+typedef zu_vec_t vec_t;
 
 #endif
 

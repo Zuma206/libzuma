@@ -40,5 +40,16 @@ int main() {
     destroy(tracker);
   }
 
+  { // Slice tests
+    tracker_t *tracker = new_tracker(heap);
+    allocator_t allocator = to_allocator(tracker);
+    vec_t numbers_vec;
+    int *numbers =
+        new_vec(allocator, int, &numbers_vec, 0, 1, 2, 3, 4, 5, 6, 7);
+    for (size_t i = 0; i < len(numbers_vec); i++)
+      printf("%ld: %d\n", i, numbers[i]);
+    destroy(tracker);
+  }
+
   panic("This is a planned panic! Program should now exit with status 1\n");
 }

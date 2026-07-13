@@ -1,4 +1,5 @@
 #include "zuma.h"
+#include <memory.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -203,4 +204,18 @@ void zu_destroy_tracker(zu_tracker_t *tracker) {
     deallocate(tracker->backing_allocator, allocation);
   }
   deallocate(tracker->backing_allocator, tracker);
+}
+
+void *zu_new_vec_items(zu_allocator_t allocator, size_t item_size, vec_t *vec,
+                       size_t items_length, void *items) {
+  size_t items_size = item_size * items_length;
+  if (items_length > 0)
+    vec->buffer = allocate_buffer(allocator, items_size);
+  else
+    vec->buffer = nullptr;
+  vec->capacity = items_length;
+  vec->item_size = items_size;
+  vec->length = items_length;
+  vec->allocator = allocator;
+  return memcpy(vec->buffer, items, items_size);
 }
