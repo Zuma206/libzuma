@@ -272,6 +272,10 @@ static inline zu_string_t zu_substring_start(zu_string_t string, size_t start) {
 
 zu_string_t zu_to_string(char *cstr);
 
+#define zu_min(a, b) ((a) < (b) ? (a) : (b))
+
+#define zu_max(a, b) ((a) > (b) ? (a) : (b))
+
 #ifndef zu_force_prefix
 
 #define panic zu_panic
@@ -303,6 +307,8 @@ typedef zu_string_t string_t;
 #define substring zu_substring
 #define fmt zu_fmt
 #define to_string zu_to_string
+#define min zu_min
+#define max zu_max
 
 #endif
 
