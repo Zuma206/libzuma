@@ -70,8 +70,8 @@ int main() {
       string_t a = string("abc");
       string_t b = string("def");
       string_t c = string("def");
-      printf("true = %s, false = %s\n", equals(b, c) ? "true" : "false",
-             equals(a, b) ? "true" : "false");
+      printf("true = %s, false = %s\n", to_cstr(equals(b, c)),
+             to_cstr(equals(a, b)));
     }
   }
 
