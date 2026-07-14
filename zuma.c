@@ -251,3 +251,7 @@ zu_string_t zu_substring_start_length(string_t s, size_t start, size_t length) {
 zu_string_t zu_to_string(char *cstr) {
   return (string_t){.characters = cstr, .length = strlen(cstr)};
 }
+
+bool zu_equals_string(string_t a, string_t b) {
+  return strncmp(a.characters, b.characters, min(len(a), len(b))) == 0;
+}

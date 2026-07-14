@@ -276,6 +276,11 @@ zu_string_t zu_to_string(char *cstr);
 
 #define zu_max(a, b) ((a) > (b) ? (a) : (b))
 
+bool zu_equals_string(zu_string_t a, zu_string_t b);
+
+#define zu_equals(o, ...)                                                      \
+  _Generic((o), string_t: zu_equals_string)((o)__VA_OPT__(, __VA_ARGS__))
+
 #ifndef zu_force_prefix
 
 #define panic zu_panic
@@ -309,6 +314,7 @@ typedef zu_string_t string_t;
 #define to_string zu_to_string
 #define min zu_min
 #define max zu_max
+#define equals zu_equals
 
 #endif
 

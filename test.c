@@ -66,6 +66,13 @@ int main() {
     printf("World = %.*s\n", fmt(short_name));
     string_t final = to_string("goodbye world!");
     printf("goodbye world! = %.*s\n", fmt(final));
+    {
+      string_t a = string("abc");
+      string_t b = string("def");
+      string_t c = string("def");
+      printf("true = %s, false = %s\n", equals(b, c) ? "true" : "false",
+             equals(a, b) ? "true" : "false");
+    }
   }
 
   panic("This is a planned panic! Program should now exit with status 1\n");
