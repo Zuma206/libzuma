@@ -244,9 +244,8 @@ void zu_pre_append(void **buffer, vec_t *vec) {
   vec->length++;
 }
 
-zu_string_t zu_substring_start_length(string_t string, size_t start,
-                                      size_t length) {
-  return (string_t){.characters = string.characters + start, .length = length};
+zu_string_t zu_substring_start_length(string_t s, size_t start, size_t length) {
+  return (string_t){.characters = s.characters + start, .length = length};
 }
 
 zu_string_t zu_to_string(char *cstr) {
